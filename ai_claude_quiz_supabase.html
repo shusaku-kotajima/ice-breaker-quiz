@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI & Claude Code クイズ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem}
+.card{background:#fff;border-radius:16px;padding:1.75rem;width:100%;max-width:560px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.screen{display:none}.screen.active{display:block}
+
+#menu-screen{text-align:center;padding:1rem 0}
+.menu-title{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;color:#1a1a1a;margin-bottom:0.25rem}
+.menu-sub{font-size:13px;color:#888;margin-bottom:2rem}
+.menu-btns{display:flex;flex-direction:column;gap:12px;max-width:300px;margin:0 auto}
+.menu-btn{padding:16px;border-radius:12px;border:1px solid #e0e0e0;background:#fff;color:#1a1a1a;font-size:15px;font-weight:500;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:background .15s}
+.menu-btn:hover{background:#f5f4f0}
+.menu-btn.primary{background:#534AB7;color:#fff;border-color:#534AB7}
+.menu-btn.primary:hover{background:#3C3489}
+
+#join-screen{text-align:center}
+.join-title{font-size:22px;font-weight:700;margin-bottom:.5rem;color:#1a1a1a}
+.join-sub{font-size:13px;color:#888;margin-bottom:1.5rem}
+.name-input{width:100%;padding:14px;border-radius:10px;border:1px solid #ddd;font-size:16px;margin-bottom:12px;outline:none;font-family:'Noto Sans JP',sans-serif;color:#1a1a1a}
+.name-input:focus{border-color:#534AB7}
+.join-btn{width:100%;padding:14px;border-radius:10px;background:#534AB7;color:#fff;border:none;font-size:15px;font-weight:500;cursor:pointer;font-family:'Noto Sans JP',sans-serif}
+.join-btn:hover{background:#3C3489}
+.back-link{margin-top:1rem;display:block;font-size:13px;color:#888;cursor:pointer;background:none;border:none;font-family:'Noto Sans JP',sans-serif}
+
+#waiting-screen{text-align:center;padding:2rem 0}
+.wait-icon{font-size:36px;margin-bottom:1rem;display:inline-block;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.wait-title{font-size:18px;font-weight:500;color:#1a1a1a;margin-bottom:.5rem}
+.wait-sub{font-size:13px;color:#888}
+.p-badge{display:inline-block;margin-top:1rem;padding:6px 16px;background:#EEEDFE;color:#3C3489;border-radius:20px;font-size:13px;font-weight:500}
+
+.ans-q-num{font-size:12px;color:#888;margin-bottom:.5rem}
+.ans-q-text{font-size:16px;font-weight:500;color:#1a1a1a;margin-bottom:1.25rem;line-height:1.6}
+.ans-options{display:flex;flex-direction:column;gap:10px}
+.ans-opt{padding:16px;border-radius:12px;border:1px solid #e0e0e0;background:#fff;color:#1a1a1a;font-size:15px;cursor:pointer;text-align:left;font-family:'Noto Sans JP',sans-serif;width:100%;transition:all .15s}
+.ans-opt:hover:not(:disabled){background:#EEEDFE;border-color:#534AB7}
+.ans-opt.selected{background:#534AB7;color:#fff;border-color:#534AB7}
+.ans-opt.correct{background:#EAF3DE;border-color:#639922;color:#27500A}
+.ans-opt.wrong{background:#FCEBEB;border-color:#A32D2D;color:#501313}
+.answered-msg{text-align:center;padding:1.25rem;color:#888;font-size:14px;display:none}
+
+#p-result-screen{text-align:center;padding:1rem 0}
+.p-score-big{font-size:56px;font-weight:700;color:#534AB7}
+.p-score-label{font-size:14px;color:#888;margin-bottom:1rem}
+.p-result-msg{font-size:18px;font-weight:500;color:#1a1a1a}
+
+.host-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
+.host-title{font-size:13px;font-weight:500;color:#888}
+.host-progress{height:3px;background:#f0f0f0;border-radius:2px;margin-bottom:1.25rem}
+.host-progress-fill{height:100%;border-radius:2px;background:#534AB7;transition:width .4s}
+.host-q-tag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;margin-bottom:.6rem;font-weight:500}
+.tag-ai{background:#EEEDFE;color:#3C3489}
+.tag-claude{background:#E1F5EE;color:#085041}
+.host-q-text{font-size:17px;font-weight:500;color:#1a1a1a;line-height:1.6;margin-bottom:1.25rem}
+.host-chart{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
+.chart-row{display:flex;align-items:center;gap:8px}
+.chart-label{font-size:12px;color:#666;width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-bar-wrap{flex:1;height:26px;background:#f0f0f0;border-radius:4px;overflow:hidden}
+.chart-bar{height:100%;border-radius:4px;transition:width .5s;background:#B5D4F4}
+.chart-bar.is-answer{background:#639922}
+.chart-bar.wrong-bar{background:#F09595}
+.chart-count{font-size:12px;color:#888;width:24px;text-align:right}
+.host-stats{display:flex;gap:10px;margin-bottom:1.25rem}
+.stat-card{flex:1;background:#f5f4f0;border-radius:10px;padding:10px;text-align:center}
+.stat-num{font-size:22px;font-weight:500;color:#1a1a1a}
+.stat-label{font-size:11px;color:#888;margin-top:2px}
+.host-btns{display:flex;gap:8px;flex-wrap:wrap}
+.h-btn{flex:1;min-width:80px;padding:11px 8px;border-radius:10px;border:1px solid #e0e0e0;background:#fff;color:#1a1a1a;font-size:13px;font-weight:500;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:background .15s}
+.h-btn:hover:not(:disabled){background:#f5f4f0}
+.h-btn:disabled{opacity:.3;cursor:default}
+.h-btn.primary{background:#534AB7;color:#fff;border-color:#534AB7}
+.h-btn.primary:hover:not(:disabled){background:#3C3489}
+.host-explanation{margin-top:1rem;padding:12px;border-radius:10px;background:#f5f4f0;font-size:13px;color:#555;line-height:1.6;display:none}
+.participants-list{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem;min-height:28px}
+.p-pill{font-size:12px;padding:4px 10px;background:#EEEDFE;color:#3C3489;border-radius:20px}
+.p-pill.answered{background:#EAF3DE;color:#27500A}
+
+#host-result-screen{text-align:center}
+.hr-title{font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:1.5rem}
+.ranking{display:flex;flex-direction:column;gap:8px;text-align:left;margin-bottom:1.5rem}
+.rank-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#f5f4f0;border-radius:10px}
+.rank-num{font-size:18px;font-weight:700;width:28px}
+.rank-name{flex:1;font-size:15px;font-weight:500;color:#1a1a1a}
+.rank-score{font-size:13px;color:#888}
+
+.config-banner{background:#FFF8E1;border:1px solid #F9A825;border-radius:10px;padding:12px 16px;font-size:13px;color:#5D4037;margin-bottom:1.5rem;line-height:1.6}
+.config-banner code{background:#FFE082;padding:2px 6px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="card">
+
+<!-- MENU -->
+<div id="menu-screen" class="screen active">
+  <div id="config-warning" class="config-banner" style="display:none">
+    ⚠️ Supabaseの設定がまだです。HTMLファイルの先頭にある<br>
+    <code>SUPABASE_URL</code> と <code>SUPABASE_ANON_KEY</code> を書き換えてください。
+  </div>
+  <div class="menu-title">AI & Claude Code クイズ</div>
+  <div class="menu-sub">アイスブレイク用 10問</div>
+  <div class="menu-btns">
+    <button class="menu-btn primary" onclick="showScreen('join-screen')">参加者として参加する</button>
+    <button class="menu-btn" onclick="startHost()">ホスト（進行役）として始める</button>
+  </div>
+</div>
+
+<!-- JOIN -->
+<div id="join-screen" class="screen">
+  <div class="join-title">参加する</div>
+  <div class="join-sub">名前を入力してください</div>
+  <input class="name-input" id="name-input" type="text" placeholder="例：田中" maxlength="12">
+  <button class="join-btn" onclick="joinQuiz()">参加する</button>
+  <button class="back-link" onclick="showScreen('menu-screen')">← 戻る</button>
+</div>
+
+<!-- WAITING -->
+<div id="waiting-screen" class="screen">
+  <span class="wait-icon">⏳</span>
+  <div class="wait-title">ホストの開始を待っています</div>
+  <div class="wait-sub">ホストが問題を開くまでお待ちください</div>
+  <div id="my-badge" class="p-badge"></div>
+</div>
+
+<!-- ANSWER -->
+<div id="answer-screen" class="screen">
+  <div class="ans-q-num" id="ans-q-num"></div>
+  <div class="ans-q-text" id="ans-q-text"></div>
+  <div class="ans-options" id="ans-options"></div>
+  <div class="answered-msg" id="answered-msg">回答済み！ホストの正解発表をお待ちください ✅</div>
+</div>
+
+<!-- PARTICIPANT RESULT -->
+<div id="p-result-screen" class="screen">
+  <div class="p-score-big" id="p-score-big">0</div>
+  <div class="p-score-label">/ 10 問正解</div>
+  <div class="p-result-msg" id="p-result-msg"></div>
+</div>
+
+<!-- HOST -->
+<div id="host-screen" class="screen">
+  <div class="host-header">
+    <span class="host-title">ホスト画面</span>
+    <span id="host-q-num" style="font-size:13px;color:#888">Q1 / 10</span>
+  </div>
+  <div class="host-progress"><div class="host-progress-fill" id="host-progress-fill" style="width:0%"></div></div>
+  <div class="participants-list" id="host-participants"></div>
+  <span class="host-q-tag" id="host-tag"></span>
+  <div class="host-q-text" id="host-q-text"></div>
+  <div class="host-chart" id="host-chart"></div>
+  <div class="host-stats">
+    <div class="stat-card"><div class="stat-num" id="stat-answered">0</div><div class="stat-label">回答済み</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">参加者</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-correct-pct">—</div><div class="stat-label">正解率</div></div>
+  </div>
+  <div class="host-explanation" id="host-explanation"></div>
+  <div class="host-btns">
+    <button class="h-btn primary" id="btn-open" onclick="hostOpenAnswer()">回答を受付開始</button>
+    <button class="h-btn" id="btn-reveal" onclick="hostReveal()" disabled>正解を発表</button>
+    <button class="h-btn" id="btn-next" onclick="hostNext()" disabled>次の問題 →</button>
+  </div>
+</div>
+
+<!-- HOST RESULT -->
+<div id="host-result-screen" class="screen">
+  <div class="hr-title">最終結果 🎉</div>
+  <div class="ranking" id="ranking"></div>
+  <button class="h-btn" style="width:100%" onclick="resetAll()">最初からやり直す</button>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ============================================================
+// ★ ここを書き換えてください ★
+const SUPABASE_URL = 'https://qhalhabbkrowwavenvhy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_yf5jxa6TaJ3SLyVxJ5feRw_ZsD04WtR';
+// ============================================================
+
+const QUESTIONS = [
+  {tag:"ai",tagLabel:"AI基礎知識",q:"AIが文章を生成するとき、文章を細かく分割した「処理の最小単位」のことを何という？",options:["パラメータ","トークン","ウェイト","レイヤー"],answer:1,explanation:"「トークン」が正解！単語や文字の一部に分割された処理単位で、AIのコスト・速度に直結します。"},
+  {tag:"ai",tagLabel:"AI基礎知識",q:"AIへの指示文のことを何と呼ぶ？",options:["スクリプト","クエリ","プロンプト","コマンド"],answer:2,explanation:"「プロンプト」が正解！書き方でAIの回答の質が大きく変わります。"},
+  {tag:"ai",tagLabel:"AI基礎知識",q:"「ハルシネーション」とは何のこと？",options:["AIの処理速度が遅くなること","AIがもっともらしい嘘をついてしまうこと","AIが途中で回答をやめること","AIが同じ回答を繰り返すこと"],answer:1,explanation:"AIが事実でない情報を自信満々に出力してしまう現象です。重要な情報は必ず一次ソースで確認！"},
+  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeで、AIへの指示やルールをあらかじめ書いておくファイルの名前は？",options:["README.md","CLAUDE.md","AI_RULES.md",".clauderc"],answer:1,explanation:"「CLAUDE.md」が正解！プロジェクトのルールをここに書いておくと毎回説明不要になります。"},
+  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeで「スキル」を入れる目的として正しいのは？",options:["コードの実行速度を上げるため","AIが特定の作業パターンを覚えて再利用できるようにするため","ファイルのサイズを小さくするため","VSCodeのテーマを変えるため"],answer:1,explanation:"スキルはAIへの「得意技」を追加するようなもの。よく使う手順を定義しておくと毎回説明せず使えます！"},
+  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeでコードを修正してもらったが、意図と違う変更をされた。まず何をするのがベスト？",options:["そのまま使う","具体的に「〇〇の部分だけ直して」と追加指示する","ファイルを全部削除して最初からやり直す","AIを再起動する"],answer:1,explanation:"「具体的に」「範囲を絞って」が鉄則。「〇〇の関数だけ△△の方法で」と伝えると精度が上がります。"},
+  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeで長い会話を続けると起きやすい問題は？",options:["VSCodeがクラッシュする","AIが前の指示を忘れて一貫性がなくなる","インターネットが遅くなる","コードが自動で削除される"],answer:1,explanation:"AIにはコンテキストウィンドウ（記憶できる量）に限界があります。CLAUDE.mdに重要ルールを書いておくのが有効！"},
+  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeに「このエラーを直して」と渡すとき、より良い方法は？",options:["エラー文だけ貼り付ける","エラー文＋関連するコード＋何をしたかったかも一緒に伝える","「エラーがある」とだけ伝える","コード全体を一気に貼り付ける"],answer:1,explanation:"コンテキスト（背景情報）が多いほどAIの精度が上がります。「何をしたいか」も一緒に伝えましょう。"},
+  {tag:"claude",tagLabel:"Claude Code",q:"「エージェント」モードのClaude Codeが通常と大きく違う点は？",options:["回答が日本語になる","複数のファイルを自律的に読み書きしながらタスクを完了できる","コードを実行できなくなる","インターネットに繋がらなくなる"],answer:1,explanation:"エージェントモードでは、AIが自分でファイルを開いたり編集したりしながら複数ステップのタスクを自律的に進めます！"},
+  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeを使う上で「プロンプトの質を上げる」ために一番効果的なのは？",options:["短く簡潔に書く","丁寧な敬語で書く","目的・条件・出力形式を具体的に書く","英語で書く"],answer:2,explanation:"良いプロンプトの三要素は「目的」「条件」「出力形式」。これを意識するだけで回答の精度がぐっと上がります！"}
+];
+
+let sb, myName='', isHost=false, pollTimer=null, lastUpdated=null;
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// Supabase初期化チェック
+window.addEventListener('DOMContentLoaded', ()=>{
+  if(SUPABASE_URL.includes('your-project')){
+    document.getElementById('config-warning').style.display='block';
+    return;
+  }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // リアルタイム購読
+  sb.channel('quiz_state_changes')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'quiz_state'},()=>tick())
+    .subscribe();
+});
+
+async function getState(){
+  const {data,error} = await sb.from('quiz_state').select('state,updated_at').eq('id','session').single();
+  if(error||!data) return makeInit();
+  lastUpdated = data.updated_at;
+  return data.state;
+}
+async function setState(s){
+  await sb.from('quiz_state').update({state:s,updated_at:new Date().toISOString()}).eq('id','session');
+}
+function makeInit(){
+  return {phase:'waiting',currentQ:0,participants:{},answers:{}};
+}
+
+// ---- HOST ----
+async function startHost(){
+  isHost=true;
+  const s=makeInit();
+  await setState(s);
+  showScreen('host-screen');
+  renderHostQ(s);
+  startPoll();
+}
+
+function renderHostQ(s){
+  const q=QUESTIONS[s.currentQ];
+  document.getElementById('host-progress-fill').style.width=(s.currentQ/QUESTIONS.length*100)+'%';
+  document.getElementById('host-q-num').textContent=`Q${s.currentQ+1} / ${QUESTIONS.length}`;
+  document.getElementById('host-tag').textContent=q.tagLabel;
+  document.getElementById('host-tag').className='host-q-tag '+(q.tag==='ai'?'tag-ai':'tag-claude');
+  document.getElementById('host-q-text').textContent=q.q;
+  document.getElementById('host-explanation').style.display='none';
+  document.getElementById('host-explanation').textContent=q.explanation;
+  renderChart(s,false);
+  document.getElementById('btn-open').disabled=false;
+  document.getElementById('btn-open').textContent='回答を受付開始';
+  document.getElementById('btn-reveal').disabled=true;
+  document.getElementById('btn-next').disabled=true;
+}
+
+function renderChart(s,revealed){
+  const q=QUESTIONS[s.currentQ];
+  const qk='q'+s.currentQ;
+  const counts=q.options.map((_,i)=>Object.keys(s.answers||{}).filter(k=>k.startsWith(qk+'_')&&s.answers[k]===i).length);
+  const total=counts.reduce((a,b)=>a+b,0)||1;
+  document.getElementById('host-chart').innerHTML=q.options.map((opt,i)=>{
+    const pct=Math.round(counts[i]/total*100);
+    let bc='chart-bar';
+    if(revealed) bc+=i===q.answer?' is-answer':' wrong-bar';
+    return `<div class="chart-row"><div class="chart-label">${opt}</div><div class="chart-bar-wrap"><div class="${bc}" style="width:${counts[i]?pct:0}%"></div></div><div class="chart-count">${counts[i]}</div></div>`;
+  }).join('');
+}
+
+function updateHostStats(s){
+  const names=Object.keys(s.participants||{});
+  const qk='q'+s.currentQ;
+  const answered=Object.keys(s.answers||{}).filter(k=>k.startsWith(qk+'_'));
+  const correct=answered.filter(k=>s.answers[k]===QUESTIONS[s.currentQ].answer).length;
+  document.getElementById('stat-answered').textContent=answered.length;
+  document.getElementById('stat-total').textContent=names.length;
+  document.getElementById('stat-correct-pct').textContent=answered.length?Math.round(correct/answered.length*100)+'%':'—';
+  const answeredNames=answered.map(k=>k.split('_')[1]);
+  document.getElementById('host-participants').innerHTML=names.map(n=>`<span class="p-pill${answeredNames.includes(n)?' answered':''}">${n}${answeredNames.includes(n)?'✓':''}</span>`).join('');
+}
+
+async function hostOpenAnswer(){
+  const s=await getState(); s.phase='open'; await setState(s);
+  document.getElementById('btn-open').disabled=true;
+  document.getElementById('btn-open').textContent='受付中...';
+  document.getElementById('btn-reveal').disabled=false;
+}
+async function hostReveal(){
+  const s=await getState(); s.phase='revealed'; await setState(s);
+  renderChart(s,true);
+  document.getElementById('host-explanation').style.display='block';
+  document.getElementById('btn-reveal').disabled=true;
+  document.getElementById('btn-next').disabled=false;
+}
+async function hostNext(){
+  const s=await getState();
+  if(s.currentQ+1>=QUESTIONS.length){
+    s.phase='finished'; await setState(s);
+    stopPoll(); showHostResult(s);
+  } else {
+    s.currentQ++; s.phase='waiting'; await setState(s);
+    renderHostQ(s);
+  }
+}
+function showHostResult(s){
+  showScreen('host-result-screen');
+  const names=Object.keys(s.participants||{});
+  const scores=names.map(name=>{
+    let sc=0;
+    QUESTIONS.forEach((q,qi)=>{ if((s.answers||{})['q'+qi+'_'+name]===q.answer) sc++; });
+    return {name,score:sc};
+  }).sort((a,b)=>b.score-a.score);
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('ranking').innerHTML=scores.map((p,i)=>`<div class="rank-row"><div class="rank-num">${medals[i]||i+1}</div><div class="rank-name">${p.name}</div><div class="rank-score">${p.score} / ${QUESTIONS.length} 問正解</div></div>`).join('');
+}
+async function resetAll(){
+  stopPoll(); myName=''; isHost=false;
+  await setState(makeInit());
+  showScreen('menu-screen');
+}
+
+// ---- PARTICIPANT ----
+async function joinQuiz(){
+  const n=document.getElementById('name-input').value.trim();
+  if(!n) return;
+  myName=n;
+  const s=await getState();
+  if(!s.participants) s.participants={};
+  s.participants[n]=true;
+  await setState(s);
+  document.getElementById('my-badge').textContent=n+' として参加中';
+  showScreen('waiting-screen');
+  startPoll();
+}
+
+function renderAnswerScreen(s){
+  const q=QUESTIONS[s.currentQ];
+  const qk='q'+s.currentQ+'_'+myName;
+  const already=s.answers&&s.answers[qk]!==undefined;
+  document.getElementById('ans-q-num').textContent=`Q${s.currentQ+1} / ${QUESTIONS.length}`;
+  document.getElementById('ans-q-text').textContent=q.q;
+  document.getElementById('ans-options').innerHTML=q.options.map((opt,i)=>
+    `<button class="ans-opt${already&&s.answers[qk]===i?' selected':''}" onclick="submitAnswer(${i})" ${already?'disabled':''}>${opt}</button>`
+  ).join('');
+  document.getElementById('answered-msg').style.display=already?'block':'none';
+  showScreen('answer-screen');
+}
+
+async function submitAnswer(idx){
+  const s=await getState();
+  if(!s||s.phase!=='open') return;
+  const qk='q'+s.currentQ+'_'+myName;
+  if(!s.answers) s.answers={};
+  if(s.answers[qk]!==undefined) return;
+  s.answers[qk]=idx;
+  await setState(s);
+  document.querySelectorAll('.ans-opt').forEach((b,i)=>{b.disabled=true;if(i===idx)b.classList.add('selected');});
+  document.getElementById('answered-msg').style.display='block';
+}
+
+function revealParticipant(s){
+  const q=QUESTIONS[s.currentQ];
+  const myAns=(s.answers||{})['q'+s.currentQ+'_'+myName];
+  document.querySelectorAll('.ans-opt').forEach((b,i)=>{
+    b.disabled=true; b.className='ans-opt';
+    if(i===q.answer) b.classList.add('correct');
+    else if(i===myAns) b.classList.add('wrong');
+  });
+}
+
+function showParticipantResult(s){
+  stopPoll();
+  let sc=0;
+  QUESTIONS.forEach((q,qi)=>{ if((s.answers||{})['q'+qi+'_'+myName]===q.answer) sc++; });
+  document.getElementById('p-score-big').textContent=sc;
+  const msgs=['これから一緒に覚えていきましょう！','いい感じ！あと少し！','すごい！かなり詳しいですね！','完璧！AIマスターですね！'];
+  document.getElementById('p-result-msg').textContent=sc>=9?msgs[3]:sc>=7?msgs[2]:sc>=5?msgs[1]:msgs[0];
+  showScreen('p-result-screen');
+}
+
+// ---- POLL（リアルタイム購読のバックアップ） ----
+function startPoll(){ stopPoll(); pollTimer=setInterval(tick,2500); }
+function stopPoll(){ if(pollTimer) clearInterval(pollTimer); pollTimer=null; }
+
+async function tick(){
+  const s=await getState();
+  const cur=document.querySelector('.screen.active')?.id;
+  if(isHost){
+    if(cur==='host-screen'){ renderChart(s,s.phase==='revealed'); updateHostStats(s); }
+    return;
+  }
+  if(s.phase==='finished'){ showParticipantResult(s); return; }
+  if(s.phase==='open'){
+    if(cur==='waiting-screen'){ renderAnswerScreen(s); return; }
+    if(cur==='answer-screen'){
+      const shown=document.getElementById('ans-q-num').textContent;
+      if(shown!==`Q${s.currentQ+1} / ${QUESTIONS.length}`){ renderAnswerScreen(s); return; }
+      const alr=(s.answers||{})['q'+s.currentQ+'_'+myName]!==undefined;
+      if(alr) document.getElementById('answered-msg').style.display='block';
+    }
+  }
+  if(s.phase==='revealed'&&cur==='answer-screen') revealParticipant(s);
+  if(s.phase==='waiting'&&cur==='answer-screen') showScreen('waiting-screen');
+}
+</script>
+</body>
+</html>
