@@ -39,7 +39,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
 .ans-q-num{font-size:12px;color:#888;margin-bottom:.5rem}
 .ans-q-text{font-size:16px;font-weight:500;color:#1a1a1a;margin-bottom:1.25rem;line-height:1.6}
 .ans-options{display:flex;flex-direction:column;gap:10px}
-.ans-opt{padding:16px;border-radius:12px;border:1px solid #e0e0e0;background:#fff;color:#1a1a1a;font-size:15px;cursor:pointer;text-align:left;font-family:'Noto Sans JP',sans-serif;width:100%;transition:all .15s}
+.ans-opt{padding:16px;border-radius:12px;border:1px solid #e0e0e0;background:#fff;color:#1a1a1a;font-size:14px;cursor:pointer;text-align:left;font-family:'Noto Sans JP',sans-serif;width:100%;transition:all .15s;line-height:1.5}
 .ans-opt:hover:not(:disabled){background:#EEEDFE;border-color:#534AB7}
 .ans-opt.selected{background:#534AB7;color:#fff;border-color:#534AB7}
 .ans-opt.correct{background:#EAF3DE;border-color:#639922;color:#27500A}
@@ -58,10 +58,10 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
 .host-q-tag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;margin-bottom:.6rem;font-weight:500}
 .tag-ai{background:#EEEDFE;color:#3C3489}
 .tag-claude{background:#E1F5EE;color:#085041}
-.host-q-text{font-size:17px;font-weight:500;color:#1a1a1a;line-height:1.6;margin-bottom:1.25rem}
+.host-q-text{font-size:16px;font-weight:500;color:#1a1a1a;line-height:1.6;margin-bottom:1.25rem}
 .host-chart{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
 .chart-row{display:flex;align-items:center;gap:8px}
-.chart-label{font-size:12px;color:#666;width:170px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-label{font-size:12px;color:#666;width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chart-bar-wrap{flex:1;height:26px;background:#f0f0f0;border-radius:4px;overflow:hidden}
 .chart-bar{height:100%;border-radius:4px;transition:width .5s;background:#B5D4F4}
 .chart-bar.is-answer{background:#639922}
@@ -97,21 +97,19 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
 <body>
 <div class="card">
 
-<!-- MENU -->
 <div id="menu-screen" class="screen active">
   <div id="config-warning" class="config-banner" style="display:none">
     ⚠️ Supabaseの設定がまだです。HTMLファイルの先頭にある<br>
     <code>SUPABASE_URL</code> と <code>SUPABASE_ANON_KEY</code> を書き換えてください。
   </div>
   <div class="menu-title">AI & Claude Code クイズ</div>
-  <div class="menu-sub">アイスブレイク用 10問</div>
+  <div class="menu-sub">実践問題 10問</div>
   <div class="menu-btns">
     <button class="menu-btn primary" onclick="showScreen('join-screen')">参加者として参加する</button>
     <button class="menu-btn" onclick="startHost()">ホスト（進行役）として始める</button>
   </div>
 </div>
 
-<!-- JOIN -->
 <div id="join-screen" class="screen">
   <div class="join-title">参加する</div>
   <div class="join-sub">名前を入力してください</div>
@@ -120,7 +118,6 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
   <button class="back-link" onclick="showScreen('menu-screen')">← 戻る</button>
 </div>
 
-<!-- WAITING -->
 <div id="waiting-screen" class="screen">
   <span class="wait-icon">⏳</span>
   <div class="wait-title">ホストの開始を待っています</div>
@@ -128,7 +125,6 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
   <div id="my-badge" class="p-badge"></div>
 </div>
 
-<!-- ANSWER -->
 <div id="answer-screen" class="screen">
   <div class="ans-q-num" id="ans-q-num"></div>
   <div class="ans-q-text" id="ans-q-text"></div>
@@ -136,14 +132,12 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
   <div class="answered-msg" id="answered-msg">回答済み！ホストの正解発表をお待ちください ✅</div>
 </div>
 
-<!-- PARTICIPANT RESULT -->
 <div id="p-result-screen" class="screen">
   <div class="p-score-big" id="p-score-big">0</div>
   <div class="p-score-label">/ 10 問正解</div>
   <div class="p-result-msg" id="p-result-msg"></div>
 </div>
 
-<!-- HOST -->
 <div id="host-screen" class="screen">
   <div class="host-header">
     <span class="host-title">ホスト画面</span>
@@ -167,7 +161,6 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
   </div>
 </div>
 
-<!-- HOST RESULT -->
 <div id="host-result-screen" class="screen">
   <div class="hr-title">最終結果 🎉</div>
   <div class="ranking" id="ranking"></div>
@@ -185,33 +178,91 @@ const SUPABASE_ANON_KEY = 'sb_publishable_yf5jxa6TaJ3SLyVxJ5feRw_ZsD04WtR';
 // ============================================================
 
 const QUESTIONS = [
-  {tag:"ai",tagLabel:"AI基礎知識",q:"AIが文章を生成するとき、文章を細かく分割した「処理の最小単位」のことを何という？",options:["パラメータ","トークン","ウェイト","レイヤー"],answer:1,explanation:"「トークン」が正解！単語や文字の一部に分割された処理単位で、AIのコスト・速度に直結します。"},
-  {tag:"ai",tagLabel:"AI基礎知識",q:"AIへの指示文のことを何と呼ぶ？",options:["スクリプト","クエリ","プロンプト","コマンド"],answer:2,explanation:"「プロンプト」が正解！書き方でAIの回答の質が大きく変わります。"},
-  {tag:"ai",tagLabel:"AI基礎知識",q:"「ハルシネーション」とは何のこと？",options:["AIの処理速度が遅くなること","AIがもっともらしい嘘をついてしまうこと","AIが途中で回答をやめること","AIが同じ回答を繰り返すこと"],answer:1,explanation:"AIが事実でない情報を自信満々に出力してしまう現象です。重要な情報は必ず一次ソースで確認！"},
-  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeで、AIへの指示やルールをあらかじめ書いておくファイルの名前は？",options:["README.md","CLAUDE.md","AI_RULES.md",".clauderc"],answer:1,explanation:"「CLAUDE.md」が正解！プロジェクトのルールをここに書いておくと毎回説明不要になります。"},
-  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeで「スキル」を入れる目的として正しいのは？",options:["コードの実行速度を上げるため","AIが特定の作業パターンを覚えて再利用できるようにするため","ファイルのサイズを小さくするため","VSCodeのテーマを変えるため"],answer:1,explanation:"スキルはAIへの「得意技」を追加するようなもの。よく使う手順を定義しておくと毎回説明せず使えます！"},
-  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeでコードを修正してもらったが、意図と違う変更をされた。まず何をするのがベスト？",options:["そのまま使う","具体的に「〇〇の部分だけ直して」と追加指示する","ファイルを全部削除して最初からやり直す","AIを再起動する"],answer:1,explanation:"「具体的に」「範囲を絞って」が鉄則。「〇〇の関数だけ△△の方法で」と伝えると精度が上がります。"},
-  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeで長い会話を続けると起きやすい問題は？",options:["VSCodeがクラッシュする","AIが前の指示を忘れて一貫性がなくなる","インターネットが遅くなる","コードが自動で削除される"],answer:1,explanation:"AIにはコンテキストウィンドウ（記憶できる量）に限界があります。CLAUDE.mdに重要ルールを書いておくのが有効！"},
-  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeに「このエラーを直して」と渡すとき、より良い方法は？",options:["エラー文だけ貼り付ける","エラー文＋関連するコード＋何をしたかったかも一緒に伝える","「エラーがある」とだけ伝える","コード全体を一気に貼り付ける"],answer:1,explanation:"コンテキスト（背景情報）が多いほどAIの精度が上がります。「何をしたいか」も一緒に伝えましょう。"},
-  {tag:"claude",tagLabel:"Claude Code",q:"「エージェント」モードのClaude Codeが通常と大きく違う点は？",options:["回答が日本語になる","複数のファイルを自律的に読み書きしながらタスクを完了できる","コードを実行できなくなる","インターネットに繋がらなくなる"],answer:1,explanation:"エージェントモードでは、AIが自分でファイルを開いたり編集したりしながら複数ステップのタスクを自律的に進めます！"},
-  {tag:"claude",tagLabel:"Claude Code",q:"Claude Codeを使う上で「プロンプトの質を上げる」ために一番効果的なのは？",options:["短く簡潔に書く","丁寧な敬語で書く","目的・条件・出力形式を具体的に書く","英語で書く"],answer:2,explanation:"良いプロンプトの三要素は「目的」「条件」「出力形式」。これを意識するだけで回答の精度がぐっと上がります！"}
+  {
+    tag:"ai", tagLabel:"AI実践",
+    q:"ChatGPTやClaudeに長い文章を要約させたとき、重要な情報が抜け落ちる原因として最も可能性が高いのは？",
+    options:["サーバーが混雑しているから","入力がコンテキストウィンドウの上限に近く、後半が処理しきれていないから","AIが日本語を正確に理解できていないから","要約プロンプトが敬語でないから"],
+    answer:1,
+    explanation:"コンテキストウィンドウの上限が原因のことが多いです。長文は前半を優先処理するため後半が薄くなりがち。「後半を中心に要約して」など範囲を指定するのが有効です。"
+  },
+  {
+    tag:"ai", tagLabel:"AI実践",
+    q:"AIに「AとBどちらがいいか？」と聞いたとき、毎回「どちらにも長所があります」と濁した回答が返ってくる。改善するプロンプトとして最も効果的なのは？",
+    options:["「絶対に答えてください」と強く命令する","「あなたはXXの専門家です。AとBを比較し、XXの観点から必ずどちらか一方を推薦してください」と役割と条件を与える","質問を英語に翻訳して聞き直す","モデルを変える"],
+    answer:1,
+    explanation:"役割（ペルソナ）と制約（必ずどちらか選ぶ）を与えるのが効果的です。AIは曖昧な質問には曖昧に答えがち。条件を絞るほど具体的な回答が返ってきます。"
+  },
+  {
+    tag:"ai", tagLabel:"AI実践",
+    q:"AIが生成したコードをそのまま本番環境に使うリスクとして、最も見落とされやすいのは？",
+    options:["コードが長すぎて読めない","セキュリティの考慮が不十分な場合がある（SQLインジェクション、認証漏れなど）","AIが古いプログラミング言語しか知らない","コードに日本語コメントが入らない"],
+    answer:1,
+    explanation:"AIは動くコードを生成しますが、セキュリティ面の考慮が抜けることがあります。入力バリデーション、認証・認可、SQLインジェクション対策などは必ず人間がレビューする必要があります。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"Claude Codeで作業中、突然「context length exceeded」というエラーが出た。どう対処するのが正しい？",
+    options:["PCを再起動する","新しい会話を開始し、現在の状況とやりたいことを改めて整理して伝える","もっと短い質問を繰り返す","有料プランにアップグレードする"],
+    answer:1,
+    explanation:"コンテキスト上限に達したら新しい会話を始めるのが正解。その際「今〇〇を作っていて、ここまで完成している。次に△△を実装したい」と状況を整理して伝えると、スムーズに再開できます。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"Claude Codeに「このコードをリファクタリングして」と頼んだら、機能まで勝手に変更されてしまった。次回から防ぐには？",
+    options:["リファクタリングを頼むのをやめる","「機能は一切変えずに、コードの可読性だけ改善して。変更前後で動作が同じことを確認して」と制約を明示する","コードをコメントアウトしてから渡す","英語で指示する"],
+    answer:1,
+    explanation:"AIへの指示は「やってほしいこと」だけでなく「やってはいけないこと」も明示するのが重要です。制約を言葉にして渡すことで意図しない変更を防げます。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"CLAUDE.mdに書いておくと特に効果的な内容はどれ？",
+    options:["チームメンバーの名前と連絡先","プロジェクトの技術スタック、コーディング規約、よく使うコマンド、禁止事項","会社の経営方針","デザインのカラーコード一覧"],
+    answer:1,
+    explanation:"CLAUDE.mdは「AIへの引き継ぎ書」です。技術スタック（使用フレームワーク等）、命名規則、テストの書き方、デプロイ手順、やってはいけないことなどを書いておくと毎回説明不要になります。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"Claude Codeで複数ファイルにまたがる大きな機能を実装してもらう際、最も失敗しにくいアプローチは？",
+    options:["「全部一気に実装して」と1回で依頼する","まず設計・ファイル構成を出してもらい確認後、ファイルごとに順番に実装してもらう","実装後にまとめてレビューする","ファイル数が多いほどいい"],
+    answer:1,
+    explanation:"大きな実装を一気に頼むと、途中でコンテキストが切れたり意図とズレた設計になりがちです。「まず設計を見せて」→確認→「では〇〇ファイルから実装して」と分割するのがベストプラクティスです。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"Claude Codeがバグを修正してくれたが、直した箇所とは別の場所で新たなバグが発生した。この現象の原因として最も考えられるのは？",
+    options:["Claudeがわざと壊した","AIがコードの依存関係や副作用を完全には把握できていなかった","コンパイラのバグ","キャッシュが残っていた"],
+    answer:1,
+    explanation:"AIはコードの一部を修正する際、他への影響を見落とすことがあります。特に依存関係が複雑なコードでは要注意。修正後は関連する機能のテストも必ず確認しましょう。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"Claude Codeにコードレビューを依頼したら「問題ありません」とだけ返ってきた。より有益なレビューを得るには？",
+    options:["「もっと詳しく」と返信する","「セキュリティ・パフォーマンス・可読性の3観点で、改善できる点を必ず3つ以上挙げてください」と観点と件数を指定する","別のAIに聞く","コードを短くする"],
+    answer:1,
+    explanation:"「レビューして」だけでは曖昧すぎます。観点（セキュリティ・パフォーマンスなど）と期待するアウトプット（改善点を〇件）を指定すると、具体的で有益なレビューが返ってきます。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"Claude Codeを使って開発速度は上がったが、コードの品質にバラつきが出てきた。チームで品質を安定させるための最善策は？",
+    options:["AIの使用を禁止する","CLAUDE.mdにコーディング規約・テスト要件・レビューチェックリストを整備し、チームで共有・運用する","毎回同じ人がレビューする","AIに全部任せる"],
+    answer:1,
+    explanation:"AIの出力品質はプロンプトと文脈に依存します。CLAUDE.mdにチームの規約を明文化して共有することで、誰がAIを使っても一定の品質を保てます。AIを使いこなす鍵は「チームの知識をAIに渡す仕組み」を作ることです。"
+  }
 ];
 
-let sb, myName='', isHost=false, pollTimer=null, lastUpdated=null;
+let sb, myName='', isHost=false, pollTimer=null;
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
 
-// Supabase初期化チェック
 window.addEventListener('DOMContentLoaded', ()=>{
   if(SUPABASE_URL.includes('your-project')){
     document.getElementById('config-warning').style.display='block';
     return;
   }
   sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  // リアルタイム購読
   sb.channel('quiz_state_changes')
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'quiz_state'},()=>tick())
     .subscribe();
@@ -220,7 +271,6 @@ window.addEventListener('DOMContentLoaded', ()=>{
 async function getState(){
   const {data,error} = await sb.from('quiz_state').select('state,updated_at').eq('id','session').single();
   if(error||!data) return makeInit();
-  lastUpdated = data.updated_at;
   return data.state;
 }
 async function setState(s){
@@ -230,7 +280,6 @@ function makeInit(){
   return {phase:'waiting',currentQ:0,participants:{},answers:{}};
 }
 
-// ---- HOST ----
 async function startHost(){
   isHost=true;
   const s=makeInit();
@@ -321,7 +370,6 @@ async function resetAll(){
   showScreen('menu-screen');
 }
 
-// ---- PARTICIPANT ----
 async function joinQuiz(){
   const n=document.getElementById('name-input').value.trim();
   if(!n) return;
@@ -375,12 +423,11 @@ function showParticipantResult(s){
   let sc=0;
   QUESTIONS.forEach((q,qi)=>{ if((s.answers||{})['q'+qi+'_'+myName]===q.answer) sc++; });
   document.getElementById('p-score-big').textContent=sc;
-  const msgs=['これから一緒に覚えていきましょう！','いい感じ！あと少し！','すごい！かなり詳しいですね！','完璧！AIマスターですね！'];
+  const msgs=['鍛錬あるのみ！また挑戦しよう','いい線いってます！','かなり実践的ですね！','完璧！現場のプロですね！'];
   document.getElementById('p-result-msg').textContent=sc>=9?msgs[3]:sc>=7?msgs[2]:sc>=5?msgs[1]:msgs[0];
   showScreen('p-result-screen');
 }
 
-// ---- POLL（リアルタイム購読のバックアップ） ----
 function startPoll(){ stopPoll(); pollTimer=setInterval(tick,2500); }
 function stopPoll(){ if(pollTimer) clearInterval(pollTimer); pollTimer=null; }
 
