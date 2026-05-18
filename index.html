@@ -62,6 +62,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
 .tag-claude{background:#E1F5EE;color:#085041}
 .tag-term{background:#FFF0DB;color:#7A4100}
 .tag-advanced{background:#FDECEA;color:#7A1010}
+.tag-news{background:#E3F2FD;color:#0D47A1}
 .host-q-text{font-size:16px;font-weight:500;color:#1a1a1a;line-height:1.6;margin-bottom:1.25rem}
 .host-chart{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
 .chart-row{display:flex;align-items:center;gap:8px}
@@ -107,7 +108,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
     <code>SUPABASE_URL</code> と <code>SUPABASE_ANON_KEY</code> を書き換えてください。
   </div>
   <div class="menu-title">AI & Claude Code クイズ</div>
-  <div class="menu-sub">用語5問 + 実践5問 + 上級5問 = 全15問</div>
+  <div class="menu-sub">全15問</div>
   <div class="menu-btns">
     <button class="menu-btn primary" onclick="showScreen('join-screen')">参加者として参加する</button>
     <button class="menu-btn" onclick="startHost()">ホスト（進行役）として始める</button>
@@ -191,8 +192,107 @@ const QUESTIONS = [
     q:"AIが文章を処理するときの最小単位。単語や文字の一部に分割されたもので、AIのコストや処理速度に直結する。これを何という？",
     options:["パラメータ","ウェイト","トークン","バッチ"],
     answer:2,
-    explanation:"「トークン」が正解！「このモデルは128,000トークンまで処理できる」のように使われます。AIの料金もトークン数で計算されることが多いです。"
+    explanation:"「トークン」が正解！AIの料金もトークン数で計算されます。「このモデルは128,000トークンまで処理できる」のように使われます。"
   },
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"AIが一度に処理・記憶できる情報量の上限のこと。これを超えると古い情報から忘れていく。これを何という？",
+    options:["トークンリミット","コンテキストウィンドウ","メモリキャッシュ","バッファサイズ"],
+    answer:1,
+    explanation:"「コンテキストウィンドウ」が正解！AIが「今見えている情報」の範囲のことです。長い会話で指示を忘れる原因もこれです。"
+  },
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"AIへの指示文・質問文のこと。書き方ひとつでAIの回答の質が大きく変わる。これを何という？",
+    options:["プロンプト","クエリ","スクリプト","コマンド"],
+    answer:0,
+    explanation:"「プロンプト」が正解！目的・条件・出力形式を具体的に書くほど精度が上がります。"
+  },
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"AIが事実ではない情報を、自信満々にもっともらしく出力してしまう現象のこと。存在しない論文や人物を作り出すことも。これを何という？",
+    options:["バイアス","ドリフト","オーバーフィッティング","ハルシネーション"],
+    answer:3,
+    explanation:"「ハルシネーション（幻覚）」が正解！もっともらしく見えるため気づきにくいです。重要な情報は必ず一次ソースで確認しましょう。"
+  },
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"AIエージェントが自律的にタスクをこなすために参照する、作業パターンや知識のまとまりのこと。CLAUDE.mdに記述して使う。これを何という？",
+    options:["スキル","プラグイン","モジュール","ライブラリ"],
+    answer:0,
+    explanation:"「スキル」が正解！よく使う手順をスキルとして定義しておくと、毎回説明せずに再利用できます。"
+  },
+  {
+    tag:"ai", tagLabel:"AI実践",
+    q:"Claudeに長い文章を要約させたとき、後半の内容が抜け落ちやすい。最も可能性が高い原因は？",
+    options:["日本語の処理が苦手","コンテキストウィンドウの上限に近く後半の処理が薄くなっている","サーバーが混雑している","モデルのバージョンが古い"],
+    answer:1,
+    explanation:"コンテキストウィンドウの上限に近いと後半が薄くなりがちです。「後半を中心に要約して」と範囲を指定するのが有効です。"
+  },
+  {
+    tag:"ai", tagLabel:"AI実践",
+    q:"AIに「AとBどちらがいいか？」と聞くと毎回「どちらにも長所があります」と返ってくる。最も効果的な改善策は？",
+    options:["英語で質問する","モデルを変える","役割と「必ずどちらか一方を選べ」という制約を与える","質問を短くする"],
+    answer:2,
+    explanation:"役割（ペルソナ）と制約を与えるのが効果的です。AIは曖昧な質問には曖昧に答えがち。条件を絞るほど具体的な回答が返ってきます。"
+  },
+  {
+    tag:"ai", tagLabel:"AI実践",
+    q:"AIが生成したコードを本番環境に使う際、最も見落とされやすいリスクは？",
+    options:["コメントが少ない","変数名が長すぎる","セキュリティ考慮の不足（認証漏れ・SQLインジェクション等）","インデントがズレている"],
+    answer:2,
+    explanation:"AIは動くコードを書けますが、セキュリティ面の考慮が抜けることがあります。認証・認可、入力バリデーション、SQLインジェクション対策などは必ず人間がレビューしましょう。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"「context length exceeded」エラーが出た。正しい対処法は？",
+    options:["PCを再起動する","新しい会話を開始して状況を整理して伝える","有料プランにアップグレードする","質問を短くして同じ会話で続ける"],
+    answer:1,
+    explanation:"新しい会話を始めるのが正解。「今〇〇を作っていてここまで完成している。次に△△を実装したい」と状況を整理して伝えるとスムーズに再開できます。"
+  },
+  {
+    tag:"claude", tagLabel:"Claude Code実践",
+    q:"Claude Codeにリファクタリングを頼んだら機能まで変更された。防ぐには？",
+    options:["英語で指示する","コードをコメントアウトして渡す","「機能は変えずに可読性だけ改善して」と制約を明示する","リファクタリングを依頼しない"],
+    answer:2,
+    explanation:"「やってほしいこと」だけでなく「やってはいけないこと」も明示するのが重要です。制約を言葉にして渡すことで意図しない変更を防げます。"
+  },
+  {
+    tag:"news", tagLabel:"時事問題",
+    q:"2026年2月にリリースされたClaude Sonnet 4.6の最大の特徴として正しいのはどれ？",
+    options:["画像生成機能が追加された","Opus級の性能をSonnet価格（$3/$15/MTok）で実現した","無料プランでも無制限に使える","GPT-5より高い料金設定になった"],
+    answer:1,
+    explanation:"Sonnet 4.6はOpus級の推論能力をSonnet価格で提供したのが最大の特徴です。SWE-bench Verifiedが80.8%に達し、コーディング・エージェント・長文推論など全面的に向上しました。"
+  },
+  {
+    tag:"news", tagLabel:"時事問題",
+    q:"Claude Sonnet 4.6がSonnet 4.5と比べて特に大きく改善したベンチマークスコアはどれ？",
+    options:["画像認識精度","ARC-AGI-2（新規問題解決能力）のスコアが13.6%→58.3%に大幅向上","日本語翻訳精度","音声認識速度"],
+    answer:1,
+    explanation:"ARC-AGI-2は「これまでに見たことのない新しい問題を解く能力」を測るベンチマークです。13.6%から58.3%へ4倍以上向上し、新規課題への対応力が大幅に上がりました。"
+  },
+  {
+    tag:"news", tagLabel:"時事問題",
+    q:"2026年4月にリリースされたClaude Opus 4.7の料金（入力/出力 per MTok）として正しいのはどれ？",
+    options:["$1/$5","$3/$15","$5/$25","$10/$50"],
+    answer:2,
+    explanation:"Opus 4.7は$5/$25 per MTokです。驚きなのはOpus 4.6から価格が据え置きで最高性能を提供している点です。ただし新トークナイザー搭載で同じテキストでも最大35%多くトークンを消費する点には注意が必要です。"
+  },
+  {
+    tag:"claude", tagLabel:"上級",
+    q:"Claude Codeを使って実装したライブラリをnpm installしたらエラー。AIは「実在する」と言っている。何が起きている？",
+    options:["npmサーバーがダウンしている","Node.jsのバージョン不一致","AIがハルシネーションで存在しないパッケージ名を生成した（ファントムパッケージ）","パッケージ名の大文字小文字が違う"],
+    answer:2,
+    explanation:"「ファントムパッケージ」と呼ばれる現象です。AIが実在しないパッケージ名をもっともらしく生成することがあります。必ずnpmjs.comで実在を確認してからインストールしてください。"
+  },
+  {
+    tag:"claude", tagLabel:"上級",
+    q:"大規模レガシーコードをClaude Codeでリファクタリングしたら、個々の変更は正しいのにシステム全体の挙動が変わった。根本的な原因は？",
+    options:["テストが不足している","変更量が多すぎる","AIがコードの局所的な文脈は理解できるがシステム全体の暗黙の依存関係・副作用の連鎖を把握しきれていない","レガシーコードの言語が古い"],
+    answer:2,
+    explanation:"AIのコンテキストウィンドウには限界があり、大規模コードベース全体を一度に理解できません。リファクタリング前に人間が依存関係マップを整理し、影響範囲を明示した上でAIに渡すことが重要です。"
+  }
+];
   {
     tag:"term", tagLabel:"AI用語",
     q:"AIが一度に処理・記憶できる情報量の上限のこと。これを超えると古い情報から忘れていく。これを何という？",
@@ -344,7 +444,7 @@ function renderHostQ(s){
   document.getElementById('host-progress-fill').style.width=(s.currentQ/QUESTIONS.length*100)+'%';
   document.getElementById('host-q-num').textContent=`Q${s.currentQ+1} / ${QUESTIONS.length}`;
   document.getElementById('host-tag').textContent=q.tagLabel;
-  document.getElementById('host-tag').className='host-q-tag '+(q.tag==='ai'?'tag-ai':q.tag==='term'?'tag-term':q.tag==='claude'?'tag-claude':'tag-advanced');
+  document.getElementById('host-tag').className='host-q-tag '+(q.tag==='ai'?'tag-ai':q.tag==='term'?'tag-term':q.tag==='claude'?'tag-claude':q.tag==='news'?'tag-news':'tag-advanced');
   document.getElementById('host-q-text').textContent=q.q;
   document.getElementById('host-explanation').style.display='none';
   document.getElementById('host-explanation').textContent=q.explanation;
