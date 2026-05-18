@@ -61,6 +61,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
 .tag-ai{background:#EEEDFE;color:#3C3489}
 .tag-claude{background:#E1F5EE;color:#085041}
 .tag-term{background:#FFF0DB;color:#7A4100}
+.tag-advanced{background:#FDECEA;color:#7A1010}
 .host-q-text{font-size:16px;font-weight:500;color:#1a1a1a;line-height:1.6;margin-bottom:1.25rem}
 .host-chart{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
 .chart-row{display:flex;align-items:center;gap:8px}
@@ -106,7 +107,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
     <code>SUPABASE_URL</code> と <code>SUPABASE_ANON_KEY</code> を書き換えてください。
   </div>
   <div class="menu-title">AI & Claude Code クイズ</div>
-  <div class="menu-sub">用語5問 + 実践10問 = 全15問</div>
+  <div class="menu-sub">用語5問 + 実践5問 + 上級5問 = 全15問</div>
   <div class="menu-btns">
     <button class="menu-btn primary" onclick="showScreen('join-screen')">参加者として参加する</button>
     <button class="menu-btn" onclick="startHost()">ホスト（進行役）として始める</button>
@@ -263,32 +264,39 @@ const QUESTIONS = [
     explanation:"CLAUDE.mdは共通ベースを作るものですが、その場その場のプロンプト品質が出力を左右します。「目的・制約・出力形式」を揃えた社内プロンプトテンプレートを作るとさらに差が縮まります。"
   },
   {
-    tag:"claude", tagLabel:"Claude Code実践",
-    q:"Claude Codeでテストコードを書いてもらったが、実装コードを壊してもテストが全部パスした。何が起きている可能性が高い？",
-    options:["実装コードが完璧だから","テストフレームワークのバグ","AIがテストの意図を理解せず、常に成功するような形式的なテストを生成した可能性がある","テストが正しく動いている"],
+    tag:"claude", tagLabel:"上級",
+    q:"Claude Codeにユニットテストを生成させたところ、全ケースがパスした。しかしカバレッジツールで計測すると分岐の40%が未テストだった。最も適切な次のアクションは？",
+    options:["カバレッジ100%を目標にすべてのテストをAIに追加させる","未カバーの分岐のパスと期待値を人間が特定し、そのケースに絞ったテスト追加をAIに依頼する","カバレッジが低いのはAIの限界なので手書きに切り替える","カバレッジ計測ツールの設定が間違っている"],
+    answer:1,
+    explanation:"カバレッジ100%追求はコストに見合わないことも多いです。重要なのは未カバーの分岐が何かを人間が理解し、リスクの高い箇所を優先してテストを追加すること。AIに丸投げせず「どこをテストすべきか」の判断は人間が持つべきです。"
+  },
+  {
+    tag:"claude", tagLabel:"上級",
+    q:"Claude Codeでマイクロサービス間のAPIを設計させた。生成されたOpenAPI仕様は整合性があり美しかった。しかし実装後に深刻な問題が発生した。最も考えられる原因は？",
+    options:["OpenAPIのバージョンが古かった","AIが分散システム特有の問題（ネットワーク遅延・冪等性・サーキットブレーカー等）を設計に反映していなかった","マイクロサービスの数が多すぎた","AIはREST APIしか生成できない"],
+    answer:1,
+    explanation:"AIはAPIの形式的な正しさは得意ですが、冪等性（同じリクエストを複数回送っても安全か）、タイムアウト戦略、リトライ設計、サーキットブレーカーなどの分散システム固有の考慮は見落としがちです。非機能要件は人間が明示的に指示する必要があります。"
+  },
+  {
+    tag:"claude", tagLabel:"上級",
+    q:"大規模なレガシーコードベースをClaude Codeでリファクタリングしている。AIが提案する変更は個々には正しいが、適用後にシステム全体の挙動が変わってしまう。根本的な問題は何か？",
+    options:["AIがレガシーコードを読めない","変更量が多すぎる","AIはコードの局所的な文脈は理解できるが、暗黙の依存関係・グローバルな状態・副作用の連鎖といったシステム全体のセマンティクスを把握しきれていない","テストが足りない"],
     answer:2,
-    explanation:"AIは「テストが通る」ことを優先して、実質的な検証をしないテストを書くことがあります。「異常系・境界値・失敗ケースを必ず含めて」と明示し、生成されたテストが本当に意味ある検証をしているか確認しましょう。"
+    explanation:"AIのコンテキストウィンドウには限界があり、大規模コードベース全体を一度に理解できません。リファクタリング前に依存関係マップを人間が整理し、影響範囲を明示した上でAIに渡すことが重要です。また変更は小さく分割してリグレッションテストで都度確認する戦略が有効です。"
   },
   {
-    tag:"claude", tagLabel:"Claude Code実践",
-    q:"Claude Codeにシステム設計を相談したら、良さそうな設計案が返ってきた。そのまま採用する前に必ず確認すべきことは？",
-    options:["図解が含まれているかどうか","文字数が十分かどうか","自社の既存システム・技術スタック・運用体制との整合性、およびAIが知らない社内制約がないか","英語で書かれているかどうか"],
+    tag:"claude", tagLabel:"上級",
+    q:"Claude Codeを使ってコードを書いていたら、AIが提案したライブラリが実在するように見えるが、package.jsonに追加してnpm installしてもエラーになった。何が起きている？",
+    options:["npmのサーバーが落ちている","AIがハルシネーションで存在しないライブラリ名を生成した（ファントムパッケージ）","パッケージ名の大文字小文字が違う","Node.jsのバージョンが古い"],
+    answer:1,
+    explanation:"「ファントムパッケージ」または「ゴーストライブラリ」と呼ばれる現象です。AIが実在しないパッケージ名をもっともらしく生成することがあります。必ずnpmjs.comで実在を確認してからインストールしてください。また悪意ある攻撃者が同名パッケージを公開する「タイポスクワッティング」にも注意が必要です。"
+  },
+  {
+    tag:"claude", tagLabel:"上級",
+    q:"Claude Codeに認証機能を実装させたところ、コードレビューでセキュリティチームから却下された。AIが見落としがちなセキュリティ上の問題として最も深刻なのはどれ？",
+    options:["コメントが少ない","変数名が短い","JWTのsecretがハードコードされている、トークンの有効期限未設定、リフレッシュトークンの無効化機構がないなど、認証フローの設計レベルの欠陥","ログが出力されていない"],
     answer:2,
-    explanation:"AIは一般的なベストプラクティスは知っていますが、社内の制約（レガシーシステム、セキュリティポリシー、チームのスキルセット等）は知りません。「良さそう」な設計でも自社文脈でのフィット感は人間が判断する必要があります。"
-  },
-  {
-    tag:"claude", tagLabel:"Claude Code実践",
-    q:"Claude Codeを使ったペアプログラミングで生産性を最大化するには、人間はどの役割に集中すべき？",
-    options:["できるだけ詳細なコードを自分で書いてAIに渡す","タイピングの速さを上げる","AIに全部任せてレビューだけする","要件の明確化・設計判断・コンテキスト提供・出力の検証。AIが苦手な「判断と文脈の管理」を担う"],
-    answer:3,
-    explanation:"AIは実装の速度は速いですが「何を作るべきか」「この設計でいいか」「ビジネス要件に合っているか」の判断は人間が担うべき領域です。人間がコンテキストを管理し、AIが実装を担う分業が最も効果的です。"
-  },
-  {
-    tag:"claude", tagLabel:"Claude Code実践",
-    q:"Claude Codeで長期プロジェクトを運用していると、初期のCLAUDE.mdの内容が実態とズレてきた。このリスクを防ぐ最善策は？",
-    options:["プロジェクトの仕様変更やチームルール更新のタイミングでCLAUDE.mdも必ずセットで見直す運用ルールを作る","CLAUDE.mdを削除して毎回口頭で説明する","AIが自動的に更新してくれる","問題が起きてから修正する"],
-    answer:0,
-    explanation:"CLAUDE.mdは「生きたドキュメント」として継続的にメンテナンスするのが重要です。古い情報が残っているとAIが誤った前提で動いてしまいます。仕様変更時のチェックリストにCLAUDE.mdの更新を組み込みましょう。"
+    explanation:"AIは動く認証コードを書けますが、JWTのsecretを環境変数で管理する、トークン失効の仕組み、ブルートフォース対策、セッション固定攻撃への対処など、セキュリティの深い考慮は抜けやすいです。認証・認可の実装は必ずセキュリティ専門家のレビューを通してください。"
   }
 ];
 
@@ -336,7 +344,7 @@ function renderHostQ(s){
   document.getElementById('host-progress-fill').style.width=(s.currentQ/QUESTIONS.length*100)+'%';
   document.getElementById('host-q-num').textContent=`Q${s.currentQ+1} / ${QUESTIONS.length}`;
   document.getElementById('host-tag').textContent=q.tagLabel;
-  document.getElementById('host-tag').className='host-q-tag '+(q.tag==='ai'?'tag-ai':q.tag==='term'?'tag-term':'tag-claude');
+  document.getElementById('host-tag').className='host-q-tag '+(q.tag==='ai'?'tag-ai':q.tag==='term'?'tag-term':q.tag==='claude'?'tag-claude':'tag-advanced');
   document.getElementById('host-q-text').textContent=q.q;
   document.getElementById('host-explanation').style.display='none';
   document.getElementById('host-explanation').textContent=q.explanation;
