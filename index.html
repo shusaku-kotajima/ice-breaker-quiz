@@ -60,6 +60,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
 .host-q-tag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:20px;margin-bottom:.6rem;font-weight:500}
 .tag-ai{background:#EEEDFE;color:#3C3489}
 .tag-claude{background:#E1F5EE;color:#085041}
+.tag-term{background:#FFF0DB;color:#7A4100}
 .host-q-text{font-size:16px;font-weight:500;color:#1a1a1a;line-height:1.6;margin-bottom:1.25rem}
 .host-chart{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem}
 .chart-row{display:flex;align-items:center;gap:8px}
@@ -105,7 +106,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
     <code>SUPABASE_URL</code> と <code>SUPABASE_ANON_KEY</code> を書き換えてください。
   </div>
   <div class="menu-title">AI & Claude Code クイズ</div>
-  <div class="menu-sub">実践問題 10問</div>
+  <div class="menu-sub">用語5問 + 実践10問 = 全15問</div>
   <div class="menu-btns">
     <button class="menu-btn primary" onclick="showScreen('join-screen')">参加者として参加する</button>
     <button class="menu-btn" onclick="startHost()">ホスト（進行役）として始める</button>
@@ -184,6 +185,41 @@ const SUPABASE_ANON_KEY = 'sb_publishable_yf5jxa6TaJ3SLyVxJ5feRw_ZsD04WtR';
 // ============================================================
 
 const QUESTIONS = [
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"「トークン」とはどういう意味？",
+    options:["AIの学習に使うデータの数","AIが文章を処理するときの最小単位（単語や文字の一部）","AIモデルのバージョン番号","APIの認証キーのこと"],
+    answer:1,
+    explanation:"「トークン」はAIが文章を処理するときの最小単位のことです。単語や文字の一部に分割されます。コストや処理速度に直結するため、「このモデルは128,000トークンまで処理できる」のように使われます。"
+  },
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"「コンテキストウィンドウ」とはどういう意味？",
+    options:["AIの画面表示設定のこと","AIが一度に処理・記憶できる情報量の上限","会話の言語設定のこと","AIが参照できる外部サイトの範囲"],
+    answer:1,
+    explanation:"「コンテキストウィンドウ」はAIが一度に「見えている情報」の範囲のことです。会話履歴やファイルの内容が含まれます。これを超えると古い情報から忘れていきます。"
+  },
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"「プロンプト」とはどういう意味？",
+    options:["AIの回答速度のこと","AIへの指示文・質問文のこと","AIが生成した文章のこと","AIのモデル名のこと"],
+    answer:1,
+    explanation:"「プロンプト」はAIに渡す指示や質問文のことです。書き方ひとつで回答の質が大きく変わります。「プロンプトエンジニアリング」という専門分野があるほど重要な概念です。"
+  },
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"「ハルシネーション」とはどういう意味？",
+    options:["AIの処理速度が急に遅くなること","AIが事実でない情報を自信満々にもっともらしく出力してしまう現象","AIが同じ回答を繰り返すこと","AIの回答が途中で途切れること"],
+    answer:1,
+    explanation:"「ハルシネーション（幻覚）」はAIが存在しない論文・人物・出来事を作り出してしまう現象です。もっともらしく見えるため気づきにくく、重要な情報は必ず一次ソースで確認する習慣が大切です。"
+  },
+  {
+    tag:"term", tagLabel:"AI用語",
+    q:"「スキル」（Claude Codeにおける）とはどういう意味？",
+    options:["AIの得意なプログラミング言語","AIエージェントが参照する、作業パターンや知識のまとまり","AIのパラメータ数のこと","Claude Codeの有料オプション機能"],
+    answer:1,
+    explanation:"「スキル」はAIエージェントに特定の作業パターンや専門知識を持たせるための仕組みです。CLAUDE.mdに記述して使います。よく使う手順をスキルとして定義しておくと毎回説明せずに再利用できます。"
+  },
   {
     tag:"ai", tagLabel:"AI実践",
     q:"ChatGPTやClaudeに長い文章を要約させたとき、重要な情報が抜け落ちる原因として最も可能性が高いのは？",
@@ -300,7 +336,7 @@ function renderHostQ(s){
   document.getElementById('host-progress-fill').style.width=(s.currentQ/QUESTIONS.length*100)+'%';
   document.getElementById('host-q-num').textContent=`Q${s.currentQ+1} / ${QUESTIONS.length}`;
   document.getElementById('host-tag').textContent=q.tagLabel;
-  document.getElementById('host-tag').className='host-q-tag '+(q.tag==='ai'?'tag-ai':'tag-claude');
+  document.getElementById('host-tag').className='host-q-tag '+(q.tag==='ai'?'tag-ai':q.tag==='term'?'tag-term':'tag-claude');
   document.getElementById('host-q-text').textContent=q.q;
   document.getElementById('host-explanation').style.display='none';
   document.getElementById('host-explanation').textContent=q.explanation;
