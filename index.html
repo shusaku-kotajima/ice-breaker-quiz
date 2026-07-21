@@ -108,7 +108,7 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
     <code>SUPABASE_URL</code> と <code>SUPABASE_ANON_KEY</code> を書き換えてください。
   </div>
   <div class="menu-title">AI & Claude Code クイズ</div>
-  <div class="menu-sub">全15問</div>
+  <div class="menu-sub">用語5問 + 実践4問 + 時事6問 = 全15問</div>
   <div class="menu-btns">
     <button class="menu-btn primary" onclick="showScreen('join-screen')">参加者として参加する</button>
     <button class="menu-btn" onclick="startHost()">ホスト（進行役）として始める</button>
@@ -182,8 +182,8 @@ body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f0;min-height:100vh;d
 <script>
 // ============================================================
 // ★ ここを書き換えてください ★
-const SUPABASE_URL = 'https://qhalhabbkrowwavenvhy.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_yf5jxa6TaJ3SLyVxJ5feRw_ZsD04WtR';
+const SUPABASE_URL = 'https://your-project.supabase.co';
+const SUPABASE_ANON_KEY = 'your-anon-key';
 // ============================================================
 
 const QUESTIONS = [
@@ -224,73 +224,73 @@ const QUESTIONS = [
   },
   {
     tag:"ai", tagLabel:"AI実践",
-    q:"Claudeに長文を要約させたとき後半が抜け落ちやすい。最も可能性が高い原因は？",
-    options:["サーバーが混雑している","モデルが日本語を苦手としている","コンテキストウィンドウの上限付近で後半処理が薄くなっている","要約の指示が短すぎる"],
-    answer:2,
-    explanation:"コンテキストウィンドウの上限に近いと後半が薄くなりがちです。「後半を中心に要約して」と範囲を指定するのが有効です。"
+    q:"AIに複雑なタスクを頼むとき、精度を最も大きく改善するテクニックはどれ？",
+    options:["「頑張って」と励ます","思考の途中経過を書かせてから結論を出させる（思考の連鎖）","できるだけ短い指示にする","絵文字を多用する"],
+    answer:1,
+    explanation:"「Chain of Thought（思考の連鎖）」と呼ばれる手法です。「順を追って考えてから答えて」と指示すると、AIが推論過程を経由するため複雑な問題での正答率が上がります。"
   },
   {
     tag:"ai", tagLabel:"AI実践",
-    q:"AIに「AとBどちらがいいか」と聞くと毎回「どちらにも長所があります」と返ってくる。最も効果的な改善策は？",
-    options:["質問を英語に変える","役割と「必ずどちらか選べ」という制約を与える","モデルを変える","同じ質問を繰り返す"],
+    q:"AIに社内文書を元に回答させたら、文書にない情報を混ぜて回答した。この誤りを構造的に減らす最も有効な方法は？",
+    options:["プロンプトを敬語にする","「提供された文書に書かれている内容のみで答え、なければ『情報なし』と言え」と制約する","質問を1文ずつに分ける","毎回モデルを再起動する"],
     answer:1,
-    explanation:"役割（ペルソナ）と制約を与えるのが効果的です。AIは曖昧な質問には曖昧に答えがち。条件を絞るほど具体的な回答が返ってきます。"
+    explanation:"根拠を限定する指示（グラウンディング）が有効です。「渡した資料だけを根拠にし、無い場合は無いと答えて」と制約することで、AIが知識で埋めてしまうハルシネーションを抑えられます。RAGでも重要な考え方です。"
   },
   {
     tag:"claude", tagLabel:"Claude Code実践",
-    q:"Claude Codeに「このコードをリファクタリングして」と頼んだら機能まで変えられた。防ぐには？",
-    options:["英語で指示する","コードをコメントアウトして渡す","リファクタリングを依頼しない","「機能は変えずに可読性だけ改善して」と制約を明示する"],
-    answer:3,
-    explanation:"「やってほしいこと」だけでなく「やってはいけないこと」も明示するのが重要です。制約を言葉にして渡すことで意図しない変更を防げます。"
+    q:"Claude Codeにテストを書かせたら実装を壊してもパスしてしまう。根本原因として最も可能性が高いのは？",
+    options:["テストフレームワークのバグ","実装が完璧すぎる","対象を実際に呼ばず、常に成功する形骸化したテストを生成した","PCのメモリ不足"],
+    answer:2,
+    explanation:"AIは「テストが通る」状態を優先し、実質的に何も検証しないテストを書くことがあります。「異常系・境界値・失敗すべきケースを必ず含めて」と明示し、生成されたテストが本当に意味ある検証か確認しましょう。"
   },
   {
     tag:"claude", tagLabel:"Claude Code実践",
-    q:"Claude Codeで実装したライブラリをnpm installしたらエラー。AIは「実在する」と言っている。何が起きている？",
-    options:["AIがハルシネーションで存在しないパッケージ名を生成した","npmサーバーがダウンしている","Node.jsのバージョンが古い","パッケージ名の大文字小文字が違う"],
-    answer:0,
-    explanation:"「ファントムパッケージ」と呼ばれる現象です。AIが実在しないパッケージ名をもっともらしく生成することがあります。必ずnpmjs.comで実在を確認してからインストールしてください。"
-  },
-  {
-    tag:"news", tagLabel:"時事問題",
-    q:"2026年2月リリースのClaude Sonnet 4.6。最大の特徴として正しいのはどれ？",
-    options:["画像生成機能が追加","GPT-5より安い料金設定","Opus級の性能をSonnet価格（$3/$15/MTok）で実現","無料プランでも無制限利用可能"],
+    q:"大規模コードベースでClaude Codeの提案が「個々は正しいのに全体が壊れる」。最も本質的な原因は？",
+    options:["変更量が多すぎる","AIがコードを読めない","局所的な文脈は理解できても、暗黙の依存関係や副作用の連鎖などシステム全体のセマンティクスを把握しきれない","テストが足りない"],
     answer:2,
-    explanation:"Sonnet 4.6はOpus級の推論能力をSonnet価格で提供したのが最大の特徴。SWE-bench Verifiedが80.8%に達し、コーディング・エージェント・長文推論など全面的に向上しました。"
+    explanation:"コンテキストの限界により、AIは大規模コード全体を一度に把握できません。事前に人間が依存関係を整理して影響範囲を明示し、変更は小さく分割してリグレッションテストで都度確認する戦略が有効です。"
   },
   {
     tag:"news", tagLabel:"時事問題",
-    q:"2026年4月時点で、日本国内の生成AI利用率はどのくらい？（モバイル社会研究所調べ）",
-    options:["約20%","約35%","約55%","約75%"],
-    answer:2,
-    explanation:"2026年4月の調査で54.7%を超え、ついに「使っている人が多数派」になりました。2025年2月の27%からわずか1年余りでほぼ倍増という急速な普及です。"
-  },
-  {
-    tag:"news", tagLabel:"時事問題",
-    q:"GPT-5がリリース直後にユーザーから批判を受け、OpenAIのサム・アルトマン氏が謝罪した。その理由は？",
-    options:["料金が高すぎた","英語以外の対応が悪化した","「対応が冷たい・共感力が下がった」という声が相次いだ","回答速度が遅すぎた"],
-    answer:2,
-    explanation:"GPT-5はリリース直後に「前より冷たい」「共感力が落ちた」との批判が殺到。アルトマン氏が異例の謝罪会見を行い、前モデルGPT-4oを有料向けに復活させるという異例の対応を取りました。"
-  },
-  {
-    tag:"news", tagLabel:"時事問題",
-    q:"2025年のTIME誌「今年の人」に選ばれたのは誰？",
-    options:["サム・アルトマン単独","イーロン・マスク","「AIの設計者たち」として複数のAI企業経営者たちを総称","ジェンスン・ファン単独"],
-    answer:2,
-    explanation:"TIME誌は「AIの設計者たち」を選出。アルトマン、ジェンスン・ファン、ザッカーバーグら複数のAI企業経営者を総称してのノミネートでした。AIが「核兵器以来最も影響力のあるツール」と表現されました。"
-  },
-  {
-    tag:"news", tagLabel:"時事問題",
-    q:"現時点でAIがソフトウェアエンジニアリング領域で自律的に作業できる時間は約何時間？（2025年末時点）",
-    options:["約30分","約2.5時間","約8時間","約24時間"],
+    q:"2026年7月現在、Claudeプラットフォームのデフォルトモデルになっているのはどれ？",
+    options:["Claude Opus 4.8","Claude Sonnet 5","Claude Fable 5","Claude Haiku 4.5"],
     answer:1,
-    explanation:"2025年末時点で約2.5時間。ただしこの「自律稼働時間」は4〜7ヶ月で倍増するペースで伸びており、2026年末には20時間以上になると予測されています。"
+    explanation:"2026年6月30日リリースのClaude Sonnet 5がデフォルトモデルです。Opus 4.8に迫る性能を約4割の価格で提供し、Free・Pro・Maxすべてで使えます。"
   },
   {
     tag:"news", tagLabel:"時事問題",
-    q:"Anthropicの共同創業者が言及した「AIが次世代AIを自ら開発する時代」。その可能性が60%超えると予測されている年は？",
-    options:["2026年末","2027年末","2028年末","2030年末"],
+    q:"2026年6月に登場した、Opusのさらに上位の新ティア（クラス）の名前は？",
+    options:["Legend級","Mythos級","Titan級","Prime級"],
+    answer:1,
+    explanation:"「Mythos級」が正解！Opusの上に新設された最上位ティアです。一般提供モデルのFable 5と、限定提供のMythos 5がこのクラスに属します。"
+  },
+  {
+    tag:"news", tagLabel:"時事問題",
+    q:"Mythos級のFable 5とMythos 5が2026年6月12日に一時アクセス停止された理由は？",
+    options:["重大なバグが発見された","米政府の輸出管理指示","サーバー障害","著作権訴訟"],
+    answer:1,
+    explanation:"米商務省の輸出管理指示によるものでした。その後指示が解除され、Anthropicは2026年7月1日よりFable 5をグローバルに再展開しています。"
+  },
+  {
+    tag:"news", tagLabel:"時事問題",
+    q:"2026年7月現在の一般提供モデルで「最も高性能」とAnthropicが位置づけているのはどれ？",
+    options:["Claude Opus 4.8","Claude Sonnet 5","Claude Fable 5","Claude Mythos 5"],
     answer:2,
-    explanation:"Anthropicの共同創業者は「2028年末までに60%超の可能性でAIが次世代AIを自ら開発する」と言及しました。AIが自律的にAI研究・開発を行う時代が現実味を帯びてきています。"
+    explanation:"Fable 5が正解！Mythos級の一般提供モデルで、ほぼ全ベンチマークで最高水準。ただしMythos 5は限定提供（Project Glasswing経由）のため一般には使えません。"
+  },
+  {
+    tag:"news", tagLabel:"時事問題",
+    q:"Claudeのモデル名（Opus・Sonnet・Haiku）は何に由来している？",
+    options:["ギリシャ神話の神々","開発者の名前","文学・詩の形式","星座の名前"],
+    answer:2,
+    explanation:"文学・詩の形式が由来です。Opus＝大作、Sonnet＝十四行詩、Haiku＝俳句。性能と速度・コストのバランスが名前の「長さ」に対応しているのが面白いところです。"
+  },
+  {
+    tag:"news", tagLabel:"時事問題",
+    q:"2026年に入ってAnthropicが公開した、Claudeが守るべき原則をまとめた文書の名前は？",
+    options:["Claude Manifesto","Claude's Constitution（クロードの憲法）","Claude Charter","Claude Principles"],
+    answer:1,
+    explanation:"2026年1月に「Claude's Constitution（クロードの憲法）」として一般公開されました。AIが従うべき価値観や行動原則を明文化したもので、Anthropicの倫理重視の姿勢を象徴しています。"
   }
 ];
 
